@@ -1,8 +1,8 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 Name: koji
-Version: 1.8.0
-Release: 2%{?dist}
+Version: 1.9.0
+Release: 1%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -89,7 +89,7 @@ Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
 Requires: libvirt-python
 Requires: libxml2-python
-Requires: python-virtinst
+Requires: /usr/bin/virt-clone
 Requires: qemu-img
 
 %description vm
@@ -225,6 +225,9 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Mon Mar 24 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-1
+- update to upstream 1.9.0
+
 * Wed Jul 31 2013 Dennis Gilmore <dennis@ausil.us> - 1.8.0-2
 - update from git snapshot
 
