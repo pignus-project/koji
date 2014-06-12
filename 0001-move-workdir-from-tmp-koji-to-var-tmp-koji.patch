@@ -1,0 +1,28 @@
+From 28b685087b620946c81ea72c04a018a174b1362f Mon Sep 17 00:00:00 2001
+From: Dennis Gilmore <dennis@ausil.us>
+Date: Thu, 29 May 2014 21:39:44 -0500
+Subject: [PATCH 1/2] move workdir from /tmp/koji/ to /var/tmp/koji/
+
+moving the workdir is needed as /tmp can be quite small with /tmp on tmpfs
+
+Signed-off-by: Dennis Gilmore <dennis@ausil.us>
+---
+ builder/kojid | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/builder/kojid b/builder/kojid
+index f101e0f..14309bb 100755
+--- a/builder/kojid
++++ b/builder/kojid
+@@ -3657,7 +3657,7 @@ def get_options():
+                 'log_level': None,
+                 'topdir': '/mnt/koji',
+                 'topurl': None,
+-                'workdir': '/tmp/koji',
++                'workdir': '/var/tmp/koji',
+                 'pluginpath': '/usr/lib/koji-builder-plugins',
+                 'mockdir': '/var/lib/mock',
+                 'mockuser': 'kojibuilder',
+-- 
+2.0.0
+

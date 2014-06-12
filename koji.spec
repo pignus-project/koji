@@ -2,13 +2,15 @@
 
 Name: koji
 Version: 1.9.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: http://fedorahosted.org/koji
 Patch0: fedora-config.patch
+Patch1: 0001-move-workdir-from-tmp-koji-to-var-tmp-koji.patch
+Patch2: 0002-image-support-xz-compressed-raw-files.patch
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -122,6 +124,8 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b .orig
+%patch1 -p1
+%patch2 -p1
 
 %build
 
@@ -225,6 +229,10 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Thu Jun 12 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-3
+- add patch to move builder workdir to /var/tmp
+- add support for making raw.xz images
+
 * Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
