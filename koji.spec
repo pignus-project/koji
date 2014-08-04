@@ -2,7 +2,7 @@
 
 Name: koji
 Version: 1.9.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -21,7 +21,7 @@ Patch9: 0008-bump-install-timeout-to-2-hours.patch
 Patch10: 0001-refactor-image-build-handlers-in-kojid.patch
 Patch11: 0002-refactor-do_images.patch
 Patch12: 0003-add-raw-xz-option.patch
-
+Patch13: 0001-correctly-call-pykickstarts-makeVersion.patch
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -150,6 +150,7 @@ koji-web is a web UI to the Koji system.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 
 %build
 
@@ -253,6 +254,9 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Mon Aug 04 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-6
+- add patch to fix kickstart parsing
+
 * Mon Aug 04 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-5
 - add upstream patches for better docker support
 
