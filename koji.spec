@@ -2,7 +2,7 @@
 
 Name: koji
 Version: 1.9.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -10,8 +10,11 @@ Group: Applications/System
 URL: http://fedorahosted.org/koji
 Patch0: fedora-config.patch
 Patch1: 0001-move-workdir-from-tmp-koji-to-var-tmp-koji.patch
-Patch2: 0002-image-support-xz-compressed-raw-files.patch
-Patch3: compress-docker.patch
+Patch2: compress-docker.patch
+Patch3: 0001-refactor-image-build-handlers-in-kojid.patch
+Patch4: 0002-refactor-do_images.patch
+Patch5: 0003-add-raw-xz-option.patch
+
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -131,6 +134,8 @@ koji-web is a web UI to the Koji system.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 
@@ -234,6 +239,9 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Mon Aug 04 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-5
+- add upstream patches for better docker support
+
 * Tue Jul 29 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-4
 - add upstream patch to compress docker images
 
