@@ -1,0 +1,28 @@
+From 2e587154eb101ae4b2015a3b47bbb18e53d393dd Mon Sep 17 00:00:00 2001
+From: Jay Greguske <jgregusk@redhat.com>
+Date: Tue, 15 Apr 2014 14:31:10 -0400
+Subject: [PATCH 1/8] fix distro behavior for rhel 5
+
+---
+ builder/kojid | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/builder/kojid b/builder/kojid
+index 4163f49..1691a54 100755
+--- a/builder/kojid
++++ b/builder/kojid
+@@ -2654,7 +2654,10 @@ class OzImageTask(BaseTaskHandler):
+         image on.
+         """
+         if distro.startswith('RHEL'):
+-            return distro.split('.')
++            major, minor = distro.split('.')
++            if major == 'RHEL-5':
++                minor = 'U' + minor
++            return major, minor
+         elif distro.startswith('Fedora'):
+             return distro.split('-')
+         elif distro.startswith('CentOS'):
+-- 
+2.0.4
+

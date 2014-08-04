@@ -1,0 +1,44 @@
+From 794abb71b1cd5662354475e2beafbab0f287b409 Mon Sep 17 00:00:00 2001
+From: Jay Greguske <jgregusk@redhat.com>
+Date: Thu, 17 Apr 2014 19:00:08 -0400
+Subject: [PATCH 7/8] include multilib packages in repos
+
+---
+ builder/mergerepos | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/builder/mergerepos b/builder/mergerepos
+index b873ccd..fecbc4b 100755
+--- a/builder/mergerepos
++++ b/builder/mergerepos
+@@ -48,6 +48,12 @@ EXPAND_ARCHES = {
+     'sh4': ['sh4a']
+     }
+ 
++MULTILIB_ARCHES = {
++    'x86_64': 'i386',
++    'ppc64': 'ppc',
++    's390x': 's390'
++    }
++
+ def parse_args(args):
+     """Parse our opts/args"""
+     usage = """
+@@ -78,6 +84,14 @@ def parse_args(args):
+         if EXPAND_ARCHES.has_key(arch):
+             opts.arches.extend(EXPAND_ARCHES[arch])
+ 
++    # support multilib repos
++    for arch in opts.arches[:]:
++        multilib_arch = MULTILIB_ARCHES.get(arch)
++        if multilib_arch:
++            opts.arches.append(multilib_arch)
++            if multilib_arch in EXPAND_ARCHES:
++                opts.arches.extend(EXPAND_ARCHES[multilib_arch])
++
+     # always include noarch
+     if not 'noarch' in opts.arches:
+         opts.arches.append('noarch')
+-- 
+2.0.4
+
