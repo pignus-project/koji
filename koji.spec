@@ -2,12 +2,12 @@
 
 Name: koji
 Version: 1.9.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
-URL: http://fedorahosted.org/koji
+URL: https://fedorahosted.org/koji
 Patch0: fedora-config.patch
 Patch1: 0001-move-workdir-from-tmp-koji-to-var-tmp-koji.patch
 Patch2: 0001-fix-distro-behavior-for-rhel-5.patch
@@ -254,6 +254,10 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Fri Sep 26 2014 Till Maas <opensource@till.name> - 1.9.0-7
+- Use https for kojipkgs
+- Update URL
+
 * Mon Aug 04 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-6
 - add patch to fix kickstart parsing
 
