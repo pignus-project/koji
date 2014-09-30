@@ -2,7 +2,7 @@
 
 Name: koji
 Version: 1.9.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -104,9 +104,6 @@ Requires: libvirt-python
 Requires: libxml2-python
 Requires: /usr/bin/virt-clone
 Requires: qemu-img
-%if 0%{?rhel} <= 7
-ExcludeArch: ppc ppc64
-%endif
 
 %description vm
 koji-vm contains a supplemental build daemon that executes certain tasks in a
@@ -254,6 +251,9 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Tue Sep 30 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-8
+- don't exclude koji-vm from ppc and ppc64
+
 * Fri Sep 26 2014 Till Maas <opensource@till.name> - 1.9.0-7
 - Use https for kojipkgs
 - Update URL
