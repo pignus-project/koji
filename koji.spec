@@ -153,6 +153,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sysconfdir}/koji-hub/plugins/
 %config(noreplace) %{_sysconfdir}/koji-hub/plugins/messagebus.conf
 %config(noreplace) %{_sysconfdir}/koji-hub/plugins/rpm2maven.conf
+%config(noreplace) %{_sysconfdir}/koji-hub/plugins/runroot.conf
 
 %files utils
 %defattr(-,root,root)
