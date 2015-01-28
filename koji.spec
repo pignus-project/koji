@@ -2,27 +2,13 @@
 
 Name: koji
 Version: 1.9.0
-Release: 9%{?dist}
+Release: 10%{?dist}.gitcd45e886
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: https://fedorahosted.org/koji
 Patch0: fedora-config.patch
-Patch1: 0001-move-workdir-from-tmp-koji-to-var-tmp-koji.patch
-Patch2: 0001-fix-distro-behavior-for-rhel-5.patch
-Patch3: 0002-compress-docker-tarball-properly.patch
-Patch4: 0003-upload-the-tdl-priority-to-building.patch
-Patch5: 0004-define-bld_info-before-the-try-in-case-of-an-earlier.patch
-Patch6: 0005-put-ova-options-in-its-own-section.patch
-Patch7: 0006-use-offline-icicle-generation.patch
-Patch8: 0007-include-multilib-packages-in-repos.patch
-Patch9: 0008-bump-install-timeout-to-2-hours.patch
-Patch10: 0001-refactor-image-build-handlers-in-kojid.patch
-Patch11: 0002-refactor-do_images.patch
-Patch12: 0003-add-raw-xz-option.patch
-Patch13: 0001-correctly-call-pykickstarts-makeVersion.patch
-Patch14: 0001-use-TLSv1.-https-bugzilla.redhat.com-show_bug.cgi-id.patch
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -136,20 +122,6 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b .orig
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
 
 %build
 
@@ -253,6 +225,9 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Tue Jan 27 2015 Dennis Gilmore <dennis@ausil.us> - 1.9.0-10.gitcd45e886
+- update to git tarball
+
 * Thu Dec 11 2014 Dennis Gilmore <dennis@ausil.us> - 1.9.0-9
 - add upstream patch switching to TLS1 from sslv3
 
