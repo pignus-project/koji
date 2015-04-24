@@ -136,7 +136,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_bindir}/*
 %{python_sitelib}/%{name}
-%config(noreplace) %{i_sysconfdir}/koji.conf
+%config(noreplace) %{_sysconfdir}/koji.conf
 %dir %{_sysconfdir}/koji.conf.d
 %doc docs Authors COPYING LGPL
 
