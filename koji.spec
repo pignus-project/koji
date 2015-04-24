@@ -2,7 +2,7 @@
 
 Name: koji
 Version: 1.9.0
-Release: 10%{?dist}.gitcd45e886
+Release: 11%{?dist}.20150423git52a0188
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -136,7 +136,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_bindir}/*
 %{python_sitelib}/%{name}
-%config(noreplace) %{_sysconfdir}/koji.conf
+%config(noreplace) %{i_sysconfdir}/koji.conf
+%dir %{_sysconfdir}/koji.conf.d
 %doc docs Authors COPYING LGPL
 
 %files hub
@@ -145,6 +146,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libexecdir}/koji-hub/
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/kojihub.conf
 %config(noreplace) %{_sysconfdir}/koji-hub/hub.conf
+%dir %{_sysconfdir}/koji-hub/hub.conf.d
 
 %files hub-plugins
 %defattr(-,root,root)
@@ -174,6 +176,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/kojiweb
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/kojiweb.conf
 %config(noreplace) %{_sysconfdir}/kojiweb/web.conf
+i%dir %{_sysconfdir}/kojiweb/web.conf.d
 
 %files builder
 %defattr(-,root,root)
@@ -226,6 +229,9 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Thu Apr 23 2015 Dennis Gilmore <dennis@ausil.us> - 1.9.0-11.20150423git52a0188
+- update to latest git
+
 * Tue Jan 27 2015 Dennis Gilmore <dennis@ausil.us> - 1.9.0-10.gitcd45e886
 - update to git tarball
 
