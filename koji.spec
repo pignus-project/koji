@@ -2,7 +2,7 @@
 
 Name: koji
 Version: 1.9.0
-Release: 11%{?dist}.20150423git52a0188
+Release: 12%{?dist}.20150423git52a0188
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -229,6 +229,9 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.0-12.20150423git52a0188
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Thu Apr 23 2015 Dennis Gilmore <dennis@ausil.us> - 1.9.0-11.20150423git52a0188
 - update to latest git
 
