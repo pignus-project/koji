@@ -1,8 +1,15 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
+%if 0%{?fedora} >= 23 || 0%{?redhat} >= 7
+%global use_systemd 1
+%else
+%global use_systemd 0
+%global install_opt TYPE=sysv
+%endif
+
 Name: koji
 Version: 1.9.0
-Release: 12%{?dist}.20150423git52a0188
+Release: 13%{?dist}.20150607gitf426fdb
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -11,13 +18,16 @@ URL: https://fedorahosted.org/koji
 Patch0: fedora-config.patch
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
 Requires: rpm-python
 Requires: pyOpenSSL
 Requires: python-urlgrabber
 BuildRequires: python
+%if %{use_systemd}
+BuildRequires: systemd
+BuildRequires: pkgconfig
+%endif
 
 %description
 Koji is a system for building and tracking RPMS.  The base package
@@ -39,8 +49,14 @@ koji-hub is the XMLRPC interface to the koji database
 %package hub-plugins
 Summary: Koji hub plugins
 Group: Applications/Internet
+License: LGPLv2
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-hub = %{version}-%{release}
+Requires: python-qpid >= 0.7
+%if 0%{?rhel} == 5
+Requires: python-ssl
+%endif
+Requires: cpio
 
 %description hub-plugins
 Plugins to the koji XMLRPC interface
@@ -52,26 +68,28 @@ License: LGPLv2 and GPLv2+
 #mergerepos (from createrepo) is GPLv2+
 Requires: %{name} = %{version}-%{release}
 Requires: mock >= 0.9.14
+Requires(pre): /usr/sbin/useradd
+%if %{use_systemd}
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+%else
 Requires(post): /sbin/chkconfig
 Requires(post): /sbin/service
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
-Requires(pre): /usr/sbin/useradd
+%endif
 Requires: /usr/bin/cvs
 Requires: /usr/bin/svn
 Requires: /usr/bin/git
-Requires: rpm-build
-Requires: redhat-rpm-config
-Requires: pykickstart                                                                               
-Requires: pycdio
 Requires: python-cheetah
-%if 0%{?fedora} || 0%{?rhel} > 5
-Requires: createrepo >= 0.9.6
-%endif
 %if 0%{?rhel} == 5
-Requires: python-createrepo >= 0.9.6
+Requires: createrepo >= 0.4.11-2
 Requires: python-hashlib
-Requires: createrepo
+Requires: python-createrepo
+%endif
+%if 0%{?fedora} >= 9
+Requires: createrepo >= 0.9.2
 %endif
 
 %description builder
@@ -83,10 +101,16 @@ Summary: Koji virtual machine management daemon
 Group: Applications/System
 License: LGPLv2
 Requires: %{name} = %{version}-%{release}
+%if %{use_systemd}
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+%else
 Requires(post): /sbin/chkconfig
 Requires(post): /sbin/service
 Requires(preun): /sbin/chkconfig
 Requires(preun): /sbin/service
+%endif
 Requires: libvirt-python
 Requires: libxml2-python
 Requires: /usr/bin/virt-clone
@@ -99,8 +123,14 @@ virtual machine. This package is not required for most installations.
 %package utils
 Summary: Koji Utilities
 Group: Applications/Internet
+License: LGPLv2
 Requires: postgresql-python
 Requires: %{name} = %{version}-%{release}
+%if %{use_systemd}
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+%endif
 
 %description utils
 Utilities for the Koji system
@@ -108,6 +138,7 @@ Utilities for the Koji system
 %package web
 Summary: Koji Web UI
 Group: Applications/Internet
+License: LGPLv2
 Requires: httpd
 Requires: mod_wsgi
 Requires: mod_auth_kerb
@@ -121,13 +152,13 @@ koji-web is a web UI to the Koji system.
 
 %prep
 %setup -q
-%patch0 -p1 -b .orig
+%patch0 -p1 -b orig
 
 %build
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT install
+make DESTDIR=$RPM_BUILD_ROOT %{?install_opt} install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -143,8 +174,10 @@ rm -rf $RPM_BUILD_ROOT
 %files hub
 %defattr(-,root,root)
 %{_datadir}/koji-hub
-%{_libexecdir}/koji-hub/
+%dir %{_libexecdir}/koji-hub
+%{_libexecdir}/koji-hub/rpmdiff
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/kojihub.conf
+%dir %{_sysconfdir}/koji-hub
 %config(noreplace) %{_sysconfdir}/koji-hub/hub.conf
 %dir %{_sysconfdir}/koji-hub/hub.conf.d
 
@@ -152,63 +185,102 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %dir %{_prefix}/lib/koji-hub-plugins
 %{_prefix}/lib/koji-hub-plugins/*.py*
-%dir %{_sysconfdir}/koji-hub/plugins/
-%config(noreplace) %{_sysconfdir}/koji-hub/plugins/messagebus.conf
-%config(noreplace) %{_sysconfdir}/koji-hub/plugins/rpm2maven.conf
-%config(noreplace) %{_sysconfdir}/koji-hub/plugins/runroot.conf
+%dir %{_sysconfdir}/koji-hub/plugins
+%{_sysconfdir}/koji-hub/plugins/*.conf
 
 %files utils
 %defattr(-,root,root)
 %{_sbindir}/kojira
-%{_sbindir}/koji-gc
-%{_sbindir}/koji-shadow
+%if %{use_systemd}
+%{_unitdir}/kojira.service
+%else
 %{_initrddir}/kojira
 %config(noreplace) %{_sysconfdir}/sysconfig/kojira
+%endif
 %dir %{_sysconfdir}/kojira
 %config(noreplace) %{_sysconfdir}/kojira/kojira.conf
+%{_sbindir}/koji-gc
 %dir %{_sysconfdir}/koji-gc
 %config(noreplace) %{_sysconfdir}/koji-gc/koji-gc.conf
+%{_sbindir}/koji-shadow
+%dir %{_sysconfdir}/koji-shadow
 %config(noreplace) %{_sysconfdir}/koji-shadow/koji-shadow.conf
 
 %files web
 %defattr(-,root,root)
 %{_datadir}/koji-web
-%{_sysconfdir}/kojiweb
-%config(noreplace) %{_sysconfdir}/httpd/conf.d/kojiweb.conf
+%dir %{_sysconfdir}/kojiweb
 %config(noreplace) %{_sysconfdir}/kojiweb/web.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/kojiweb.conf
 %dir %{_sysconfdir}/kojiweb/web.conf.d
 
 %files builder
 %defattr(-,root,root)
 %{_sbindir}/kojid
+%dir %{_libexecdir}/kojid
+%{_libexecdir}/kojid/mergerepos
+%if %{use_systemd}
+%{_unitdir}/kojid.service
+%else
 %{_initrddir}/kojid
-%{_libexecdir}/kojid/
 %config(noreplace) %{_sysconfdir}/sysconfig/kojid
+%endif
 %dir %{_sysconfdir}/kojid
 %config(noreplace) %{_sysconfdir}/kojid/kojid.conf
-%attr(-,kojibuilder,kojibuilder) /etc/mock/koji
+%attr(-,kojibuilder,kojibuilder) %{_sysconfdir}/mock/koji
 
 %pre builder
 /usr/sbin/useradd -r -s /bin/bash -G mock -d /builddir -M kojibuilder 2>/dev/null ||:
 
+%if %{use_systemd}
+
+%post builder
+%systemd_post kojid.service
+
+%preun builder
+%systemd_preun kojid.service
+
+%postun builder
+%systemd_postun kojid.service
+
+%else
+
 %post builder
 /sbin/chkconfig --add kojid
-/sbin/service kojid condrestart &> /dev/null || :
 
 %preun builder
 if [ $1 = 0 ]; then
   /sbin/service kojid stop &> /dev/null
   /sbin/chkconfig --del kojid
 fi
+%endif
 
 %files vm
 %defattr(-,root,root)
 %{_sbindir}/kojivmd
-%{_datadir}/kojivmd
+#dir %{_datadir}/kojivmd
+%{_datadir}/kojivmd/kojikamid
+%if %{use_systemd}
+%{_unitdir}/kojivmd.service
+%else
 %{_initrddir}/kojivmd
 %config(noreplace) %{_sysconfdir}/sysconfig/kojivmd
+%endif
 %dir %{_sysconfdir}/kojivmd
 %config(noreplace) %{_sysconfdir}/kojivmd/kojivmd.conf
+
+%if %{use_systemd}
+
+%post vm
+%systemd_post kojivmd.service
+
+%preun vm
+%systemd_preun kojivmd.service
+
+%postun vm
+%systemd_postun kojivmd.service
+
+%else
 
 %post vm
 /sbin/chkconfig --add kojivmd
@@ -218,7 +290,20 @@ if [ $1 = 0 ]; then
   /sbin/service kojivmd stop &> /dev/null
   /sbin/chkconfig --del kojivmd
 fi
+%endif
 
+%if %{use_systemd}
+
+%post utils
+%systemd_post kojira.service
+
+%preun utils
+%systemd_preun kojira.service
+
+%postun utils
+%systemd_postun kojira.service
+
+%else
 %post utils
 /sbin/chkconfig --add kojira
 /sbin/service kojira condrestart &> /dev/null || :
@@ -227,8 +312,13 @@ if [ $1 = 0 ]; then
   /sbin/service kojira stop &> /dev/null || :
   /sbin/chkconfig --del kojira
 fi
+%endif
 
 %changelog
+* Mon Jul 06 2015 Dennis Gilmore <dennis@ausil.us> - 1.9.0-13.20150607gitf426fdb
+- update the git snapshot to latest head
+- enable systemd units for f23 up
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.0-12.20150423git52a0188
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
