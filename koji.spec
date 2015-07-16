@@ -8,8 +8,8 @@
 %endif
 
 Name: koji
-Version: 1.9.0
-Release: 13%{?dist}.20150607gitf426fdb
+Version: 1.10.0
+Release: 1%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -315,6 +315,9 @@ fi
 %endif
 
 %changelog
+* Thu Jul 16 2015 Dennis Gilmore <dennis@ausil.us> - 1.10.0=1
+- update to 1.10.0 release
+
 * Mon Jul 06 2015 Dennis Gilmore <dennis@ausil.us> - 1.9.0-13.20150607gitf426fdb
 - update the git snapshot to latest head
 - enable systemd units for f23 up
