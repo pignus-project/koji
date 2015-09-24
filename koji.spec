@@ -9,13 +9,16 @@
 
 Name: koji
 Version: 1.10.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: https://fedorahosted.org/koji
 Patch0: fedora-config.patch
+# Backported upstream patches
+Patch1: 0001-Better-catch-SSL-errors.patch
+Patch2: 0001-Be-more-careful-when-detect-cert-expiry-exceptions.patch
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
 BuildArch: noarch
@@ -153,6 +156,8 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b orig
+%patch1 -p1
+%patch2 -p1
 
 %build
 
@@ -315,6 +320,9 @@ fi
 %endif
 
 %changelog
+* Thu Sep 24 2015 Kalev Lember <klember@redhat.com> - 1.10.0-2
+- Backport two patches to fix ClientSession SSL errors
+
 * Thu Jul 16 2015 Dennis Gilmore <dennis@ausil.us> - 1.10.0=1
 - update to 1.10.0 release
 
