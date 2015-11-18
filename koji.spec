@@ -1,6 +1,6 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
-%if 0%{?fedora} >= 23 || 0%{?redhat} >= 7
+%if 0%{?fedora} >= 23 || 0%{?rhel} >= 7
 %global use_systemd 1
 %else
 %global use_systemd 0
@@ -8,17 +8,14 @@
 %endif
 
 Name: koji
-Version: 1.10.0
-Release: 2%{?dist}
+Version: 1.10.1
+Release: 1%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: https://fedorahosted.org/koji
 Patch0: fedora-config.patch
-# Backported upstream patches
-Patch1: 0001-Better-catch-SSL-errors.patch
-Patch2: 0001-Be-more-careful-when-detect-cert-expiry-exceptions.patch
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
 BuildArch: noarch
@@ -26,6 +23,7 @@ Requires: python-krbV >= 1.0.13
 Requires: rpm-python
 Requires: pyOpenSSL
 Requires: python-urlgrabber
+Requires: yum
 BuildRequires: python
 %if %{use_systemd}
 BuildRequires: systemd
@@ -91,7 +89,7 @@ Requires: createrepo >= 0.4.11-2
 Requires: python-hashlib
 Requires: python-createrepo
 %endif
-%if 0%{?fedora} >= 9
+%if 0%{?fedora} >= 9 or 0%{?rhel} >= 5
 Requires: createrepo >= 0.9.2
 %endif
 
@@ -156,8 +154,6 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b orig
-%patch1 -p1
-%patch2 -p1
 
 %build
 
@@ -320,6 +316,10 @@ fi
 %endif
 
 %changelog
+* Tue Nov 17 2015 Dennis Gilmore <dennis@ausil.us> - 1.10.1-1
+- update to 1.10.1
+- Requires yum in the cli rhbz#1230888
+
 * Thu Sep 24 2015 Kalev Lember <klember@redhat.com> - 1.10.0-2
 - Backport two patches to fix ClientSession SSL errors
 
