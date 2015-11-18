@@ -89,7 +89,7 @@ Requires: createrepo >= 0.4.11-2
 Requires: python-hashlib
 Requires: python-createrepo
 %endif
-%if 0%{?fedora} >= 9 or 0%{?rhel} >= 5
+%if 0%{?fedora} >= 9 || 0%{?rhel} >= 5
 Requires: createrepo >= 0.9.2
 %endif
 
