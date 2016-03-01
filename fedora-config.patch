@@ -1,6 +1,7 @@
---- koji-1.7.0/cli/koji.conf.orig	2012-05-31 14:05:43.000000000 -0500
-+++ koji-1.7.0/cli/koji.conf	2012-06-01 10:50:12.000000000 -0500
-@@ -3,13 +3,13 @@
+diff -uNr koji-1.10.1.orig/cli/koji.conf koji-1.10.1/cli/koji.conf
+--- koji-1.10.1.orig/cli/koji.conf	2016-03-01 16:43:15.000000000 -0600
++++ koji-1.10.1/cli/koji.conf	2016-03-01 16:57:55.875274789 -0600
+@@ -3,26 +3,23 @@
  ;configuration for koji cli tool
  
  ;url of XMLRPC server
@@ -17,18 +18,19 @@
  
  ;path to the koji top directory
  ;topdir = /mnt/koji
-@@ -22,10 +22,11 @@
+ 
+-;configuration for Kerberos authentication
+-
+-;the service name of the principal being used by the hub
+-;krbservice = host
++anon_retry = true
+ 
  ;configuration for SSL authentication
  
  ;client certificate
 -;cert = ~/.koji/client.crt
 +cert = ~/.fedora.cert
  
- ;certificate of the CA that issued the client certificate
--;ca = ~/.koji/clientca.crt
-+ca = ~/.fedora-server-ca.cert
- 
  ;certificate of the CA that issued the HTTP server certificate
 -;serverca = ~/.koji/serverca.crt
 +serverca = ~/.fedora-server-ca.cert
-+

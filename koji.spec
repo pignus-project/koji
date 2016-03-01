@@ -9,15 +9,15 @@
 
 Name: koji
 Version: 1.10.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
-URL: https://fedorahosted.org/koji
+URL: https://pagure.io/fork/ausil/koji/branch/fedora-infra
 Patch0: fedora-config.patch
 
-Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
+Source: koji-%{version}.tar.bz2
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
 Requires: rpm-python
@@ -316,6 +316,10 @@ fi
 %endif
 
 %changelog
+* Tue Mar 01 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-3
+- update to git e8201aac8294e6125a73504886b0800041b58868
+- https://pagure.io/fork/ausil/koji/branch/fedora-infra
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.10.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
