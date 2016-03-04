@@ -1,0 +1,46 @@
+From 565818a5adc55389d14ed2096f82ebce8c8fc2de Mon Sep 17 00:00:00 2001
+From: Dennis Gilmore <dennis@ausil.us>
+Date: Thu, 3 Mar 2016 18:03:18 -0600
+Subject: [PATCH] install the builder runroot plugin and config
+
+make the builder plugin directory
+install the runroot.py plugin there
+install the runroot.conf file in /etc/kojid/
+
+Signed-off-by: Dennis Gilmore <dennis@ausil.us>
+---
+ plugins/Makefile | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/plugins/Makefile b/plugins/Makefile
+index 0bbf748..2e8b519 100644
+--- a/plugins/Makefile
++++ b/plugins/Makefile
+@@ -1,8 +1,12 @@
+ PYTHON=python
+ PLUGINDIR = /usr/lib/koji-hub-plugins
++BUILDERPLUGINDIR = /usr/lib/koji-builder-plugins
+ FILES = $(wildcard *.py)
++BUILDERFILES = runroot.py
+ CONFDIR = /etc/koji-hub/plugins
++BUILDERCONFDIR = /etc/kojid
+ CONFFILES = $(wildcard *.conf)
++BUILDERCONFFILES = runroot.conf
+ 
+ _default:
+ 	@echo "nothing to make.  try make install"
+@@ -18,7 +22,11 @@ install:
+ 	fi
+ 
+ 	mkdir -p $(DESTDIR)/$(PLUGINDIR)
++	mkdir -p $(DESTDIR)/$(BUILDERPLUGINDIR)
+ 	install -p -m 644 $(FILES) $(DESTDIR)/$(PLUGINDIR)
++	install -p -m 644 $(BUILDERFILES) $(DESTDIR)/$(BUILDERPLUGINDIR)
+ 	$(PYTHON) -c "import compileall; compileall.compile_dir('$(DESTDIR)/$(PLUGINDIR)', 1, '$(PLUGINDIR)', 1)"
++	$(PYTHON) -c "import compileall; compileall.compile_dir('$(DESTDIR)/$(BUILDERPLUGINDIR)', 1, '$(BUILDERPLUGINDIR)', 1)"
+ 	mkdir -p $(DESTDIR)/$(CONFDIR)
+ 	install -p -m 644 $(CONFFILES) $(DESTDIR)/$(CONFDIR)
++	install -p -m 644 $(BUILDERCONFFILES) $(DESTDIR)/$(BUILDERCONFDIR)
+-- 
+2.5.0
+
