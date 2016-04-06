@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -320,6 +320,9 @@ fi
 %endif
 
 %changelog
+* Wed Apr 06 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-6
+- add --product to livemedia-creator calls rhbz#1315110
+
 * Wed Apr 06 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-5
 - enable dns in runroots
 - add koji signed repo support
