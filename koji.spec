@@ -9,14 +9,13 @@
 
 Name: koji
 Version: 1.10.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: https://pagure.io/fork/ausil/koji/branch/fedora-infra
 Patch0: fedora-config.patch
-Patch1: 0001-install-the-builder-runroot-plugin-and-config.patch
 
 Source: koji-%{version}.tar.bz2
 BuildArch: noarch
@@ -155,7 +154,6 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b orig
-%patch1 -p1 -b runroot
 
 %build
 
@@ -322,8 +320,13 @@ fi
 %endif
 
 %changelog
+* Wed Apr 06 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-5
+- enable dns in runroots
+- add koji signed repo support
+- Run plugin callbacks when image builds finish
+
 * Thu Mar 03 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-4
-- add a patch to install teh runroot builder plugin in the correct place
+- add a patch to install the runroot builder plugin in the correct place
 
 * Tue Mar 01 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-3
 - update to git e8201aac8294e6125a73504886b0800041b58868
