@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -69,6 +69,7 @@ License: LGPLv2 and GPLv2+
 #mergerepos (from createrepo) is GPLv2+
 Requires: %{name} = %{version}-%{release}
 Requires: mock >= 0.9.14
+Requires: python2-multilib
 Requires(pre): /usr/sbin/useradd
 %if %{use_systemd}
 Requires(post): systemd
@@ -320,6 +321,10 @@ fi
 %endif
 
 %changelog
+* Thu Apr 07 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-7
+- --product had to be --project
+- add missing Requires for koji-builder on python2-multilib
+
 * Wed Apr 06 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-6
 - add --product to livemedia-creator calls rhbz#1315110
 
