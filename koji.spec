@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -321,6 +321,10 @@ fi
 %endif
 
 %changelog
+* Fri Apr 08 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-8
+- do not remove the - for project on livemedia
+- fix the sending of messages on image completion
+
 * Thu Apr 07 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-7
 - --product had to be --project
 - add missing Requires for koji-builder on python2-multilib
