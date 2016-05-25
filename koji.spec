@@ -25,6 +25,7 @@ Requires: pyOpenSSL
 Requires: python-urlgrabber
 Requires: yum
 BuildRequires: python
+BuildRequires: python-sphinx
 %if %{use_systemd}
 BuildRequires: systemd
 BuildRequires: pkgconfig
@@ -232,8 +233,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/sysconfig/kojid
 %endif
 %dir %{_sysconfdir}/kojid
+%dir %{_sysconfdir}/kojid/plugins
 %config(noreplace) %{_sysconfdir}/kojid/kojid.conf
-%config(noreplace) %{_sysconfdir}/kojid/runroot.conf
+%config(noreplace) %{_sysconfdir}/kojid/plugins/runroot.conf
 %attr(-,kojibuilder,kojibuilder) %{_sysconfdir}/mock/koji
 
 %pre builder
