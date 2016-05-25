@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -85,6 +85,7 @@ Requires: /usr/bin/cvs
 Requires: /usr/bin/svn
 Requires: /usr/bin/git
 Requires: python-cheetah
+Requires: squashfs-tools
 %if 0%{?rhel} == 5
 Requires: createrepo >= 0.4.11-2
 Requires: python-hashlib
@@ -321,6 +322,10 @@ fi
 %endif
 
 %changelog
+* Tue May 24 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-9
+- update to git master upstream, add lmc cosmetic fixes
+- add patch to disable login in koji-web
+
 * Fri Apr 08 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-8
 - do not remove the - for project on livemedia
 - fix the sending of messages on image completion
