@@ -9,13 +9,14 @@
 
 Name: koji
 Version: 1.10.1
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: https://pagure.io/fork/ausil/koji/branch/fedora-infra
 Patch0: fedora-config.patch
+Patch1: 0001-enable-dns-to-work-in-runroot-buildroots.patch
 
 Source: koji-%{version}.tar.bz2
 BuildArch: noarch
@@ -157,6 +158,7 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b orig
+%patch1 -p1
 
 %build
 
@@ -324,6 +326,9 @@ fi
 %endif
 
 %changelog
+* Thu May 26 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-10
+- add patch to enable dns in runroot chroots
+
 * Tue May 24 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-9
 - update to git master upstream, add lmc cosmetic fixes
 - add patch to disable login in koji-web

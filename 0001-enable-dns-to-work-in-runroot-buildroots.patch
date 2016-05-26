@@ -1,0 +1,29 @@
+From 6e224af9a8610f37898859d25efa7188e9f008e0 Mon Sep 17 00:00:00 2001
+From: Dennis Gilmore <dennis@ra.ausil.us>
+Date: Wed, 6 Apr 2016 15:00:13 -0500
+Subject: [PATCH] enable dns to work in runroot buildroots
+
+Signed-off-by: Dennis Gilmore <dennis@ra.ausil.us>
+---
+ plugins/builder/runroot.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/plugins/builder/runroot.py b/plugins/builder/runroot.py
+index b303890..7bf40e4 100644
+--- a/plugins/builder/runroot.py
++++ b/plugins/builder/runroot.py
+@@ -152,9 +152,9 @@ class RunRootTask(tasks.BaseTaskHandler):
+                                            parent=self.id)
+             repo_info = self.wait(task_id)[task_id]
+         if compat_mode:
+-            broot = BuildRoot(root, br_arch, self.id, repo_id=repo_info['id'])
++            broot = BuildRoot(root, br_arch, self.id, repo_id=repo_info['id'], setup_dns=True)
+         else:
+-            broot = BuildRoot(self.session, self.options, root, br_arch, self.id, repo_id=repo_info['id'])
++            broot = BuildRoot(self.session, self.options, root, br_arch, self.id, repo_id=repo_info['id'], setup_dns=True)
+             broot.workdir = self.workdir
+         broot.init()
+         rootdir = broot.rootdir()
+-- 
+2.7.4
+
