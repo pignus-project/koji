@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -326,6 +326,9 @@ fi
 %endif
 
 %changelog
+* Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.10.1-11
+- https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
+
 * Thu May 26 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-10
 - add patch to enable dns in runroot chroots
 
