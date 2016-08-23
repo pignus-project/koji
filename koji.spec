@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -17,6 +17,7 @@ Group: Applications/System
 URL: https://pagure.io/fork/ausil/koji/branch/fedora-infra
 Patch0: fedora-config.patch
 Patch1: 0001-enable-dns-to-work-in-runroot-buildroots.patch
+Patch2: 138.patch
 
 Source: koji-%{version}.tar.bz2
 BuildArch: noarch
@@ -159,6 +160,7 @@ koji-web is a web UI to the Koji system.
 %setup -q
 %patch0 -p1 -b orig
 %patch1 -p1
+%patch2 -p1
 
 %build
 
@@ -326,6 +328,9 @@ fi
 %endif
 
 %changelog
+* Tue Aug 23 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-12
+- add patch to disable bind mounting into image tasks chroots
+
 * Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.10.1-11
 - https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
 

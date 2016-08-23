@@ -1,0 +1,58 @@
+From d70f068cc1e138b3bb58766728424c190fcd77b5 Mon Sep 17 00:00:00 2001
+From: Adam Williamson <awilliam@redhat.com>
+Date: Aug 23 2016 04:50:22 +0000
+Subject: don't bind-mount /dev for LiveMediaTask (RHBZ #1315541)
+
+
+This is an alternative to https://pagure.io/koji/pull-request/137
+which keeps the /dev bind mount for ApplianceTask and LiveCDTask,
+only dropping it for LiveMediaTask. It seems from the test we
+ran that appliance-creator may still need it, at least for the
+present - some of the createAppliance tasks seemed to hang their
+builders.
+
+---
+
+diff --git a/builder/kojid b/builder/kojid
+index 05438d2..26ae8f2 100755
+--- a/builder/kojid
++++ b/builder/kojid
+@@ -2483,6 +2483,9 @@ class BuildLiveMediaTask(BuildImageTask):
+ # Other chroot-based image handlers should inherit this.
+ class ImageTask(BaseTaskHandler):
+     Methods = []
++    # default to bind mounting /dev, but allow subclasses to change
++    # this
++    bind_opts = {'dirs' : {'/dev' : '/dev',}}
+ 
+     def makeImgBuildRoot(self, buildtag, repoinfo, arch, inst_group):
+         """
+@@ -2497,14 +2500,11 @@ class ImageTask(BaseTaskHandler):
+         @returns: a buildroot object
+         """
+ 
+-        # Here we configure mock to bind mount a set of /dev directories
+-        bind_opts = {'dirs' : {'/dev' : '/dev',}}
+-        if os.path.exists('/selinux'):
+-            bind_opts['dirs']['/selinux'] = '/selinux'
+         rootopts = {'install_group': inst_group,
+                     'setup_dns': True,
+-                    'repo_id': repoinfo['id'],
+-                    'bind_opts' : bind_opts}
++                    'repo_id': repoinfo['id']}
++        if self.bind_opts:
++            rootopts['bind_opts'] = self.bind_opts
+ 
+         broot = BuildRoot(self.session, self.options, buildtag, arch, self.id, **rootopts)
+         broot.workdir = self.workdir
+@@ -2932,6 +2932,9 @@ class LiveMediaTask(ImageTask):
+ 
+     Methods = ['createLiveMedia']
+     _taskWeight = 1.5
++    # For livemedia-creator we do not want to bind mount /dev, see
++    # https://bugzilla.redhat.com/show_bug.cgi?id=1315541
++    bind_opts = {}
+ 
+     def genISOManifest(self, image, manifile):
+         """
+
