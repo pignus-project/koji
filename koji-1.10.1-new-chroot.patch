@@ -1,0 +1,91 @@
+From 45b94423d4669547c3142bd38a1dff182101f15d Mon Sep 17 00:00:00 2001
+From: Ian McLeod <imcleod@redhat.com>
+Date: Sep 28 2016 04:19:51 +0000
+Subject: [PATCH 1/2] A stab at --new-chroot support for rhe runroot plugin
+
+
+---
+
+diff --git a/cli/koji b/cli/koji
+index 4b5a23d..e33d1e4 100755
+--- a/cli/koji
++++ b/cli/koji
+@@ -6853,6 +6853,8 @@ def handle_runroot(options, session, args):
+             help=_("Print the ID of the runroot task"))
+     parser.add_option("--use-shell", action="store_true", default=False,
+             help=_("Run command through a shell, otherwise uses exec"))
++    parser.add_option("--new-chroot", action="store_true", default=False,
++            help=_("Run command with the --new-chroot (systemd-nspawn) option to mock"))
+     parser.add_option("--repo-id", type="int", help=_("ID of the repo to use"))
+ 
+     (opts, args) = parser.parse_args(args)
+@@ -6873,6 +6875,7 @@ def handle_runroot(options, session, args):
+                                 packages=opts.package, mounts=opts.mount,
+                                 repo_id=opts.repo_id,
+                                 skip_setarch=opts.skip_setarch,
++                                new_chroot=opts.new_chroot,
+                                 weight=opts.weight)
+     except koji.GenericError, e:
+         if 'Invalid method' in str(e):
+diff --git a/plugins/builder/runroot.py b/plugins/builder/runroot.py
+index 7bf40e4..83f1898 100644
+--- a/plugins/builder/runroot.py
++++ b/plugins/builder/runroot.py
+@@ -92,7 +92,7 @@ class RunRootTask(tasks.BaseTaskHandler):
+             if not path.startswith('/'):
+                 raise koji.GenericError("bad config: all paths (default_mounts, safe_roots, path_subs) needs to be absolute: %s" % path)
+ 
+-    def handler(self, root, arch, command, keep=False, packages=[], mounts=[], repo_id=None, skip_setarch=False, weight=None, upload_logs=None):
++    def handler(self, root, arch, command, keep=False, packages=[], mounts=[], repo_id=None, skip_setarch=False, weight=None, upload_logs=None, new_chroot=False):
+         """Create a buildroot and run a command (as root) inside of it
+ 
+         Command may be a string or a list.
+@@ -188,6 +188,8 @@ class RunRootTask(tasks.BaseTaskHandler):
+             self.do_mounts(rootdir, [self._get_path_params(x) for x in self.config['default_mounts']])
+             self.do_extra_mounts(rootdir, mounts)
+             mock_cmd = ['chroot']
++            if new_chroot:
++                mock_cmd.append('--new-chroot')
+             if skip_setarch:
+                 #we can't really skip it, but we can set it to the current one instead of of the chroot one
+                 myarch = platform.uname()[5]
+
+From 852f2500d45fa1aebbc2c0f2c568b026a3bf1ca5 Mon Sep 17 00:00:00 2001
+From: Ian McLeod <imcleod@redhat.com>
+Date: Sep 28 2016 18:23:42 +0000
+Subject: [PATCH 2/2] Slight improvement to new-chroot to make the cli change less likely to confuse older builders
+
+
+---
+
+diff --git a/cli/koji b/cli/koji
+index e33d1e4..30e4f98 100755
+--- a/cli/koji
++++ b/cli/koji
+@@ -6870,13 +6870,18 @@ def handle_runroot(options, session, args):
+     else:
+         command = args[2:]
+     try:
+-        task_id = session.runroot(tag, arch, command,
+-                                channel=opts.channel_override,
+-                                packages=opts.package, mounts=opts.mount,
+-                                repo_id=opts.repo_id,
+-                                skip_setarch=opts.skip_setarch,
+-                                new_chroot=opts.new_chroot,
+-                                weight=opts.weight)
++        kwargs = { 'channel':       opts.channel_override,
++                   'packages':      opts.package,
++                   'mounts':        opts.mount,
++                   'repo_id':       opts.repo_id,
++                   'skip_setarch':  opts.skip_setarch,
++                   'weight':        opts.weight }
++        # Only pass this kwarg if it is true - this prevents confusing older
++        # builders with a different function signature
++        if opts.new_chroot:
++            kwargs['new_chroot'] = True
++
++        task_id = session.runroot(tag, arch, command, **kwargs)
+     except koji.GenericError, e:
+         if 'Invalid method' in str(e):
+             print "* The runroot plugin appears to not be installed on the",
+

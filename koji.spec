@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 12%{?dist}
+Release: 13%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -18,6 +18,7 @@ URL: https://pagure.io/fork/ausil/koji/branch/fedora-infra
 Patch0: fedora-config.patch
 Patch1: 0001-enable-dns-to-work-in-runroot-buildroots.patch
 Patch2: 138.patch
+Patch3: koji-1.10.1-new-chroot.patch
 
 Source: koji-%{version}.tar.bz2
 BuildArch: noarch
@@ -161,6 +162,7 @@ koji-web is a web UI to the Koji system.
 %patch0 -p1 -b orig
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 
@@ -328,6 +330,9 @@ fi
 %endif
 
 %changelog
+* Wed Sep 28 2016 Adam Miller <maxamillion@fedoraproject.org> - 1.10.1-13
+- Patch new-chroot functionality into runroot plugin
+
 * Tue Aug 23 2016 Dennis Gilmore <dennis@ausil.us> - 1.10.1-12
 - add patch to disable bind mounting into image tasks chroots
 
@@ -450,7 +455,7 @@ fi
 
 * Fri Jun 01 2012 Dennis Gilmore <dennis@ausil.us> - 1.7.0-1
 - update to 1.7.0 many bugfixes and improvements
-- now uses mod_wsgi 
+- now uses mod_wsgi
 
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
@@ -514,7 +519,7 @@ fi
 
 * Mon Aug 25 2008 Dennis Gilmore <dennis@ausil.us> - 1.2.6-1
 - update to 1.2.6
-- make sure we have to correct version of createrepo on Fedora 8 
+- make sure we have to correct version of createrepo on Fedora 8
 
 * Tue Aug  5 2008 Tom "spot" Callaway <tcallawa@redhat.com> 1.2.5-2
 - fix conditional (line 5)
