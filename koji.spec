@@ -8,30 +8,32 @@
 %endif
 
 Name: koji
-Version: 1.10.1
-Release: 13%{?dist}
+Version: 1.11.0
+Release: 1%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: https://pagure.io/fork/ausil/koji/branch/fedora-infra
 Patch0: fedora-config.patch
-Patch1: 0001-enable-dns-to-work-in-runroot-buildroots.patch
-Patch2: 138.patch
-Patch3: koji-1.10.1-new-chroot.patch
 
 Source: koji-%{version}.tar.bz2
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
 Requires: rpm-python
 Requires: pyOpenSSL
+Requires: python-requests
+Requires: python-requests-kerberos
 Requires: python-urlgrabber
-Requires: yum
+Requires: python-dateutil
 BuildRequires: python
 BuildRequires: python-sphinx
 %if %{use_systemd}
 BuildRequires: systemd
 BuildRequires: pkgconfig
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 7
+Requires: python-libcomps
 %endif
 
 %description
@@ -46,6 +48,9 @@ License: LGPLv2 and GPLv2
 Requires: httpd
 Requires: mod_wsgi
 Requires: postgresql-python
+%if 0%{?rhel} == 5
+Requires: python-simplejson
+%endif
 Requires: %{name} = %{version}-%{release}
 
 %description hub
@@ -58,6 +63,9 @@ License: LGPLv2
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-hub = %{version}-%{release}
 Requires: python-qpid >= 0.7
+%if 0%{?rhel} >= 6
+Requires: python-qpid-proton
+%endif
 %if 0%{?rhel} == 5
 Requires: python-ssl
 %endif
@@ -73,8 +81,8 @@ License: LGPLv2 and GPLv2+
 #mergerepos (from createrepo) is GPLv2+
 Requires: %{name} = %{version}-%{release}
 Requires: mock >= 0.9.14
-Requires: python2-multilib
 Requires(pre): /usr/sbin/useradd
+Requires: squashfs-tools
 %if %{use_systemd}
 Requires(post): systemd
 Requires(preun): systemd
@@ -89,13 +97,12 @@ Requires: /usr/bin/cvs
 Requires: /usr/bin/svn
 Requires: /usr/bin/git
 Requires: python-cheetah
-Requires: squashfs-tools
 %if 0%{?rhel} == 5
 Requires: createrepo >= 0.4.11-2
 Requires: python-hashlib
 Requires: python-createrepo
 %endif
-%if 0%{?fedora} >= 9 || 0%{?rhel} >= 5
+%if 0%{?fedora} >= 9 || 0%{?rhel} > 5
 Requires: createrepo >= 0.9.2
 %endif
 
@@ -160,9 +167,6 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b orig
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
 
@@ -330,6 +334,10 @@ fi
 %endif
 
 %changelog
+* Fri Dec 09 2016 Dennis Gilmore <dennis@ausil.us> - 1.11.0-1
+- update to 1.11.0
+- setup fedora config for kerberos and flag day
+
 * Wed Sep 28 2016 Adam Miller <maxamillion@fedoraproject.org> - 1.10.1-13
 - Patch new-chroot functionality into runroot plugin
 
