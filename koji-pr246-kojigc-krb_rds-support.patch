@@ -1,0 +1,69 @@
+From 9a21b78ff5d03f82edb20644684f78fe69aa97d9 Mon Sep 17 00:00:00 2001
+From: Till Maas <opensource@till.name>
+Date: Dec 17 2016 16:03:25 +0000
+Subject: [PATCH 1/2] Revert "default krb_rdns to True"
+
+
+This reverts commit 02128ee5777b560619314cc0220e1ed7ca16b28c.
+
+The second column in cfgmap is an alias and "True" is not a valid alias.
+It was mistaken in the reverted commit as a default value, which it is
+not. Reverting this commit should fix the following traceback that
+koji-gc in Fedora currenty raises:
+
+Traceback (most recent call last):
+File "/usr/sbin/koji-gc", line 901, in <module>
+options, args = get_options()
+File "/usr/sbin/koji-gc", line 159, in get_options
+if config.has_option(*alias):
+TypeError: has_option() argument after * must be a sequence, not bool
+
+---
+
+diff --git a/util/koji-gc b/util/koji-gc
+index b43f8aa..bf534ed 100755
+--- a/util/koji-gc
++++ b/util/koji-gc
+@@ -131,7 +131,7 @@ def get_options():
+             ['keytab', None, 'string'],
+             ['principal', None, 'string'],
+             ['krbservice', None, 'string'],
+-            ['krb_rdns', True, 'boolean'],
++            ['krb_rdns', None, 'boolean'],
+             ['runas', None, 'string'],
+             ['user', None, 'string'],
+             ['password', None, 'string'],
+
+From 1cc9e3052142421ff97e92defed393775ad56441 Mon Sep 17 00:00:00 2001
+From: Till Maas <opensource@till.name>
+Date: Dec 18 2016 09:35:22 +0000
+Subject: [PATCH 2/2] koji-gc: Set default value for krb_rdns to False
+
+
+In Fedora infra krb_rdns needs to be set to False. This matches
+https://pagure.io/koji/pull-request/244
+
+---
+
+diff --git a/util/koji-gc b/util/koji-gc
+index bf534ed..9cb2144 100755
+--- a/util/koji-gc
++++ b/util/koji-gc
+@@ -52,6 +52,8 @@ def get_options():
+     parser.add_option("--principal", help=_("specify a Kerberos principal to use"))
+     parser.add_option("--krbservice", default="host",
+                       help=_("the service name of the principal being used by the hub"))
++    parser.add_option("--krb-rdns", action="store_true", default=False,
++                      help=_("get reverse dns FQDN for krb target"))
+     parser.add_option("--runas", metavar="USER",
+                       help=_("run as the specified user (requires special privileges)"))
+     parser.add_option("--user", help=_("specify user"))
+@@ -111,6 +113,7 @@ def get_options():
+     (options, args) = parser.parse_args()
+ 
+     defaults = parser.get_default_values()
++
+     config = ConfigParser.ConfigParser()
+     cf = getattr(options, 'config_file', None)
+     if cf:
+

@@ -1,0 +1,24 @@
+From db1eb36c1b74de65ddf479859a437eab1823727b Mon Sep 17 00:00:00 2001
+From: Patrick Uiterwijk <puiterwijk@redhat.com>
+Date: Dec 17 2016 18:27:49 +0000
+Subject: Make koji-gc also work with principal and keytab
+
+
+Signed-off-by: Patrick Uiterwijk <puiterwijk@redhat.com>
+
+---
+
+diff --git a/util/koji-gc b/util/koji-gc
+index b43f8aa..74f1de7 100755
+--- a/util/koji-gc
++++ b/util/koji-gc
+@@ -352,7 +352,7 @@ def activate_session(session):
+     elif options.user:
+         #authenticate using user/password
+         session.login()
+-    elif has_krb_creds():
++    elif has_krb_creds() or (options.keytab and options.principal):
+         try:
+             if options.keytab and options.principal:
+                 session.krb_login(principal=options.principal, keytab=options.keytab, proxyuser=options.runas)
+

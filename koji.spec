@@ -9,15 +9,19 @@
 
 Name: koji
 Version: 1.11.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
 Group: Applications/System
-URL: https://pagure.io/fork/ausil/koji/branch/fedora-infra
+URL: https://pagure.io/koji/
+Source0: https://releases.pagure.org/koji/koji-%{version}.tar.bz2
 Patch0: fedora-config.patch
+# https://pagure.io/koji/pull-request/246
+# https://pagure.io/koji/pull-request/248
+Patch1: koji-pr246-kojigc-krb_rds-support.patch
+Patch2: koji-pr248-kojigc-keytab-support.patch
 
-Source: koji-%{version}.tar.bz2
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
 Requires: rpm-python
@@ -167,6 +171,8 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b orig
+%patch1 -p1 -b .246
+%patch2 -p1 -b .248
 
 %build
 
@@ -334,6 +340,11 @@ fi
 %endif
 
 %changelog
+* Fri Jan 06 2017 Till Maas <opensource@till.name> - 1.11.0-2
+- Update upstream URLs
+- Add upstream koji-gc kerberos patches
+- Use Source0
+
 * Fri Dec 09 2016 Dennis Gilmore <dennis@ausil.us> - 1.11.0-1
 - update to 1.11.0
 - setup fedora config for kerberos and flag day
