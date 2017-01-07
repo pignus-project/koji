@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.11.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -18,9 +18,11 @@ URL: https://pagure.io/koji/
 Source0: https://releases.pagure.org/koji/koji-%{version}.tar.bz2
 Patch0: fedora-config.patch
 # https://pagure.io/koji/pull-request/246
-# https://pagure.io/koji/pull-request/248
 Patch1: koji-pr246-kojigc-krb_rds-support.patch
+# https://pagure.io/koji/pull-request/248
 Patch2: koji-pr248-kojigc-keytab-support.patch
+# https://pagure.io/koji/pull-request/243
+Patch3: koji-pr243-CheckClientIP-and-TrustForwardedIP.patch
 
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
@@ -173,6 +175,7 @@ koji-web is a web UI to the Koji system.
 %patch0 -p1 -b orig
 %patch1 -p1 -b .246
 %patch2 -p1 -b .248
+%patch3 -p1 -b .243
 
 %build
 
@@ -340,6 +343,9 @@ fi
 %endif
 
 %changelog
+* Sat Jan 07 2017 Till Maas <opensource@till.name> - 1.11.0-3
+- Add patches for proxy IP forwarding
+
 * Fri Jan 06 2017 Till Maas <opensource@till.name> - 1.11.0-2
 - Update upstream URLs
 - Add upstream koji-gc kerberos patches

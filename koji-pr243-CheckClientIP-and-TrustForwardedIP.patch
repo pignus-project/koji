@@ -1,0 +1,137 @@
+From b7bbd1e835ef7c21809173902fd78375f0aec072 Mon Sep 17 00:00:00 2001
+From: Mike McLean <mikem@redhat.com>
+Date: Dec 14 2016 18:34:16 +0000
+Subject: [PATCH 1/2] new hub CheckClientIP option
+
+
+---
+
+diff --git a/hub/kojixmlrpc.py b/hub/kojixmlrpc.py
+index 295a197..47c1284 100644
+--- a/hub/kojixmlrpc.py
++++ b/hub/kojixmlrpc.py
+@@ -430,6 +430,8 @@ def load_config(environ):
+         ['DNUsernameComponent', 'string', 'CN'],
+         ['ProxyDNs', 'string', ''],
+ 
++        ['CheckClientIP', 'boolean', True],
++
+         ['LoginCreatesUser', 'boolean', True],
+         ['KojiWebURL', 'string', 'http://localhost.localdomain/koji'],
+         ['EmailDomain', 'string', None],
+diff --git a/koji/auth.py b/koji/auth.py
+index ef2f338..ef7635f 100644
+--- a/koji/auth.py
++++ b/koji/auth.py
+@@ -72,11 +72,7 @@ class Session(object):
+                 self.message = 'no session args'
+                 return
+             args = cgi.parse_qs(args, strict_parsing=True)
+-        if hostip is None:
+-            hostip = context.environ['REMOTE_ADDR']
+-            #XXX - REMOTE_ADDR not promised by wsgi spec
+-            if hostip == '127.0.0.1':
+-                hostip = socket.gethostbyname(socket.gethostname())
++        hostip = self.get_remote_ip(override=hostip)
+         try:
+             id = long(args['session-id'][0])
+             key = args['session-key'][0]
+@@ -239,6 +235,18 @@ class Session(object):
+             raise koji.AuthLockError, self.lockerror
+         return True
+ 
++    def get_remote_ip(self, override=None):
++        if not context.opts['CheckClientIP']:
++            return '-'
++        elif override is not None:
++            return override
++        else:
++            hostip = context.environ['REMOTE_ADDR']
++            #XXX - REMOTE_ADDR not promised by wsgi spec
++            if hostip == '127.0.0.1':
++                hostip = socket.gethostbyname(socket.gethostname())
++            return hostip
++
+     def checkLoginAllowed(self, user_id):
+         """Verify that the user is allowed to login"""
+         cursor = context.cnx.cursor()
+@@ -260,12 +268,7 @@ class Session(object):
+             raise koji.AuthError, 'invalid username or password'
+         if self.logged_in:
+             raise koji.GenericError, "Already logged in"
+-        hostip = opts.get('hostip')
+-        if hostip is None:
+-            hostip = context.environ['REMOTE_ADDR']
+-            #XXX - REMOTE_ADDR not promised by wsgi spec
+-            if hostip == '127.0.0.1':
+-                hostip = socket.gethostbyname(socket.gethostname())
++        hostip = self.get_remote_ip(override=opts.get('hostip'))
+ 
+         # check passwd
+         c = context.cnx.cursor()
+@@ -332,10 +335,7 @@ class Session(object):
+ 
+         self.checkLoginAllowed(user_id)
+ 
+-        hostip = context.environ['REMOTE_ADDR']
+-        #XXX - REMOTE_ADDR not promised by wsgi spec
+-        if hostip == '127.0.0.1':
+-            hostip = socket.gethostbyname(socket.gethostname())
++        hostip = self.get_remote_ip()
+ 
+         sinfo = self.createSession(user_id, hostip, koji.AUTHTYPE_KERB)
+ 
+@@ -412,10 +412,7 @@ class Session(object):
+ 
+         self.checkLoginAllowed(user_id)
+ 
+-        hostip = context.environ['REMOTE_ADDR']
+-        #XXX - REMOTE_ADDR not promised by wsgi spec
+-        if hostip == '127.0.0.1':
+-            hostip = socket.gethostbyname(socket.gethostname())
++        hostip = self.get_remote_ip()
+ 
+         sinfo = self.createSession(user_id, hostip, authtype)
+         return sinfo
+
+From 09af8f548665fab35174f731bf51bab0c4c65063 Mon Sep 17 00:00:00 2001
+From: Mike McLean <mikem@redhat.com>
+Date: Dec 14 2016 19:15:19 +0000
+Subject: [PATCH 2/2] hub option: TrustForwardedIP
+
+
+An option to trust the X_FORWARDED_FOR header (defaults to false) when
+determining client ip address
+
+---
+
+diff --git a/hub/kojixmlrpc.py b/hub/kojixmlrpc.py
+index 47c1284..2572e13 100644
+--- a/hub/kojixmlrpc.py
++++ b/hub/kojixmlrpc.py
+@@ -431,6 +431,7 @@ def load_config(environ):
+         ['ProxyDNs', 'string', ''],
+ 
+         ['CheckClientIP', 'boolean', True],
++        ['TrustForwardedIP', 'boolean', False],
+ 
+         ['LoginCreatesUser', 'boolean', True],
+         ['KojiWebURL', 'string', 'http://localhost.localdomain/koji'],
+diff --git a/koji/auth.py b/koji/auth.py
+index ef7635f..0cf2ffd 100644
+--- a/koji/auth.py
++++ b/koji/auth.py
+@@ -241,7 +241,11 @@ class Session(object):
+         elif override is not None:
+             return override
+         else:
+-            hostip = context.environ['REMOTE_ADDR']
++            if (context.opts['TrustForwardedIP']
++                    and 'HTTP_X_FORWARDED_FOR' in context.environ):
++                hostip = context.environ['HTTP_X_FORWARDED_FOR'].split(',')[-1].strip()
++            else:
++                hostip = context.environ['REMOTE_ADDR']
+             #XXX - REMOTE_ADDR not promised by wsgi spec
+             if hostip == '127.0.0.1':
+                 hostip = socket.gethostbyname(socket.gethostname())
+
