@@ -1,0 +1,41 @@
+From c056a2ff45a0e256aa27e1ca2b86ed4284bcaa52 Mon Sep 17 00:00:00 2001
+From: Patrick Uiterwijk <puiterwijk@redhat.com>
+Date: Dec 15 2016 01:58:50 +0000
+Subject: Allow principal and keytab in cli config
+
+
+Signed-off-by: Patrick Uiterwijk <puiterwijk@redhat.com>
+
+---
+
+diff --git a/cli/koji.conf b/cli/koji.conf
+index 4294603..ae77e4e 100644
+--- a/cli/koji.conf
++++ b/cli/koji.conf
+@@ -19,6 +19,12 @@
+ ;the service name of the principal being used by the hub
+ ;krbservice = host
+ 
++;the principal to auth as for automated clients
++;principal = client@EXAMPLE.COM
++
++;the keytab to auth as for automated clients
++;keytab = /etc/krb5.keytab
++
+ ;configuration for SSL authentication
+ 
+ ;client certificate
+diff --git a/koji/__init__.py b/koji/__init__.py
+index 144c2c5..9b3c75d 100644
+--- a/koji/__init__.py
++++ b/koji/__init__.py
+@@ -1584,6 +1584,8 @@ def read_config(profile_name, user_config=None):
+         'poll_interval': 6,
+         'krbservice': 'host',
+         'krb_rdns': True,
++        'principal': None,
++        'keytab': None,
+         'cert': None,
+         'ca': '',  # FIXME: remove in next major release
+         'serverca': None,
+

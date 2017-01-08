@@ -9,20 +9,23 @@
 
 Name: koji
 Version: 1.11.0
-Release: 3%{?dist}
-License: LGPLv2 and GPLv2+
+Release: 4%{?dist}
 # koji.ssl libs (from plague) are GPLv2+
+License: LGPLv2 and GPLv2+
 Summary: Build system tools
 Group: Applications/System
 URL: https://pagure.io/koji/
 Source0: https://releases.pagure.org/koji/koji-%{version}.tar.bz2
-Patch0: fedora-config.patch
 # https://pagure.io/koji/pull-request/246
 Patch1: koji-pr246-kojigc-krb_rds-support.patch
 # https://pagure.io/koji/pull-request/248
 Patch2: koji-pr248-kojigc-keytab-support.patch
 # https://pagure.io/koji/pull-request/243
 Patch3: koji-pr243-CheckClientIP-and-TrustForwardedIP.patch
+# https://pagure.io/koji/pull-request/239
+Patch4: koji-pr239-principal-keytab-cli-config.patch
+# Not upstreamable
+Patch100: fedora-config.patch
 
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
@@ -172,10 +175,11 @@ koji-web is a web UI to the Koji system.
 
 %prep
 %setup -q
-%patch0 -p1 -b orig
 %patch1 -p1 -b .246
 %patch2 -p1 -b .248
 %patch3 -p1 -b .243
+%patch4 -p1 -b .239
+%patch100 -p1 -b .fedoraconfig
 
 %build
 
@@ -343,6 +347,12 @@ fi
 %endif
 
 %changelog
+* Sun Jan 08 2017 Till Maas <opensource@till.name> - 1.11.0-4
+- Add patch for keytab kerberos client config
+- Move non upstreamable Fedora patch to the end to ease rebasing to future
+  upstream release
+- Move license comment before license tag
+
 * Sat Jan 07 2017 Till Maas <opensource@till.name> - 1.11.0-3
 - Add patches for proxy IP forwarding
 

@@ -1,6 +1,7 @@
---- koji-1.11.0-orig/cli/koji.conf	2016-12-08 22:22:14.000000000 -0600
-+++ koji-1.11.0/cli/koji.conf	2016-12-09 08:29:10.066764435 -0600
-@@ -3,26 +3,17 @@
+diff -up koji-1.11.0/cli/koji.conf.clientconf koji-1.11.0/cli/koji.conf
+--- koji-1.11.0/cli/koji.conf.clientconf	2017-01-08 12:35:51.681832856 +0100
++++ koji-1.11.0/cli/koji.conf	2017-01-08 12:37:14.388829788 +0100
+@@ -3,18 +3,20 @@
  ;configuration for koji cli tool
  
  ;url of XMLRPC server
@@ -18,12 +19,16 @@
  ;path to the koji top directory
  ;topdir = /mnt/koji
  
--;configuration for Kerberos authentication
+ ;configuration for Kerberos authentication
 +authtype = kerberos
 +krb_rdns = false
-
--;the service name of the principal being used by the hub
--;krbservice = host
+ 
+ ;the service name of the principal being used by the hub
+ ;krbservice = host
+@@ -24,11 +26,3 @@
+ 
+ ;the keytab to auth as for automated clients
+ ;keytab = /etc/krb5.keytab
 -
 -;configuration for SSL authentication
 -
