@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.11.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 # koji.ssl libs (from plague) are GPLv2+
 License: LGPLv2 and GPLv2+
 Summary: Build system tools
@@ -177,7 +177,8 @@ koji-web is a web UI to the Koji system.
 %setup -q
 %patch1 -p1 -b .246
 %patch2 -p1 -b .248
-%patch3 -p1 -b .243
+# This seems to break the koji hub currently, thefore do not apply it
+#patch3 -p1 -b .243
 %patch4 -p1 -b .239
 %patch100 -p1 -b .fedoraconfig
 
@@ -347,6 +348,9 @@ fi
 %endif
 
 %changelog
+* Sun Jan 08 2017 Till Maas <opensource@till.name> - 1.11.0-5
+- Do not apply faulty CheckClientIP patch
+
 * Sun Jan 08 2017 Till Maas <opensource@till.name> - 1.11.0-4
 - Add patch for keytab kerberos client config
 - Move non upstreamable Fedora patch to the end to ease rebasing to future
