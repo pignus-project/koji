@@ -1,0 +1,47 @@
+From 2c4662ace6a4d4e5f1b0f2f377f42017109906c6 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Tue, 24 Nov 2015 13:06:27 +0100
+Subject: [PATCH 2/2] Retry anonymous requests once
+
+Server likes to close connections sometimes and we log off before watching
+tasks. Let's try to reconnect once, but don't fall back into sleeping and
+more retries to keep compatibility with previous behavior (see comment).
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1274517
+---
+ koji/__init__.py | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/koji/__init__.py b/koji/__init__.py
+index f5bdda6..fd69f35 100644
+--- a/koji/__init__.py
++++ b/koji/__init__.py
+@@ -1918,6 +1918,13 @@ class ClientSession(object):
+             debug = self.opts.get('debug',False)
+             max_retries = self.opts.get('max_retries',30)
+             interval = self.opts.get('retry_interval',20)
++
++            if not self.logged_in:
++                #in the past, non-logged-in sessions did not retry. For compatibility purposes
++                #this behavior is governed by the anon_retry opt.
++                if not self.opts.get('anon_retry',False):
++                    max_retries = 1
++
+             while True:
+                 tries += 1
+                 self.retries += 1
+@@ -1975,11 +1982,6 @@ class ClientSession(object):
+                                         'certificate expired' in ssl_reason):
+                                     # There's no point in retrying for this
+                                     raise e
+-                    if not self.logged_in:
+-                        #in the past, non-logged-in sessions did not retry. For compatibility purposes
+-                        #this behavior is governed by the anon_retry opt.
+-                        if not self.opts.get('anon_retry',False):
+-                            raise e
+                     if tries > max_retries:
+                         raise e
+                     #otherwise keep retrying
+-- 
+2.5.0
+

@@ -1,0 +1,64 @@
+From 1a4628d4b9f07154dea13f695625ab46e37d6f22 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Sat, 12 Dec 2015 18:51:27 +0100
+Subject: [PATCH] koji: avoid double fault when handling a socket exception
+
+The attempt to close the errored connection can in fact raise another exception:
+
+  494 buildArch (attr-2.4.47-14.fc23.src.rpm, armv6hl): open (nvn.base48.cz) -> FAILED: Fault: <Fault 1: 'Traceback (most recent call last):
+    File "/usr/lib/python2.7/site-packages/koji/daemon.py", line 1161, in runTask
+      response = (handler.run(),)
+    File "/usr/lib/python2.7/site-packages/koji/tasks.py", line 158, in run
+      return koji.util.call_with_argcheck(self.handler, self.params, self.opts)
+    File "/usr/lib/python2.7/site-packages/koji/util.py", line 154, in call_with_argcheck
+      return func(*args, **kwargs)
+    File "/usr/sbin/kojid", line 1124, in handler
+      broot.init()
+    File "/usr/sbin/kojid", line 460, in init
+      rv = self.mock([\'--init\'])
+    File "/usr/sbin/kojid", line 408, in mock
+      incremental_upload(self.session, fname, fd, uploadpath, logger=self.logger)
+    File "/usr/lib/python2.7/site-packages/koji/daemon.py", line 48, in incremental_upload
+      fast_incremental_upload(session, fname, fd, path, retries, logger)
+    File "/usr/lib/python2.7/site-packages/koji/daemon.py", line 87, in fast_incremental_upload
+      result = session.rawUpload(contents, offset, path, fname, overwrite=True)
+    File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 1577, in __call__
+      return self.__func(self.__name,args,opts)
+    File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 1944, in _callMethod
+      self._close_connection()
+    File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 1876, in _close_connection
+      self._connection[1].close()
+    File "/usr/lib/python2.7/httplib.py", line 844, in close
+      sock.close()   # close it manually... there may be other refs
+    File "/usr/lib/python2.7/site-packages/koji/ssl/SSLConnection.py", line 82, in close
+      self.shutdown()
+    File "/usr/lib/python2.7/site-packages/koji/ssl/SSLConnection.py", line 53, in shutdown
+      self.__dict__["conn"].shutdown()
+    File "/usr/lib/python2.7/site-packages/OpenSSL/SSL.py", line 1522, in shutdown
+      self._raise_ssl_error(self._ssl, result)
+    File "/usr/lib/python2.7/site-packages/OpenSSL/SSL.py", line 1178, in _raise_ssl_error
+      raise SysCallError(errno, errorcode.get(errno))
+  SysCallError: (32, \'EPIPE\')'>
+---
+ koji/__init__.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/koji/__init__.py b/koji/__init__.py
+index 8e297dc..124f600 100644
+--- a/koji/__init__.py
++++ b/koji/__init__.py
+@@ -1951,7 +1951,10 @@ class ClientSession(object):
+                     #(depending on the python version, these may or may not be subclasses of Exception)
+                     raise
+                 except Exception, e:
+-                    self._close_connection()
++                    try:
++                        self._close_connection()
++                    except Exception, inner:
++                        self.logger.debug("Ignoring socket error while handling an exception: %s", inner)
+                     if isinstance(e, OpenSSL.SSL.Error):
+                         # pyOpenSSL doesn't use different exception
+                         # subclasses, we have to actually parse the args
+-- 
+2.5.0
+

@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.10.1
-Release: 1%{?dist}
+Release: 1%{?dist}.b48.4
 License: LGPLv2 and GPLv2+
 # koji.ssl libs (from plague) are GPLv2+
 Summary: Build system tools
@@ -18,6 +18,15 @@ URL: https://fedorahosted.org/koji
 Patch0: fedora-config.patch
 
 Source: https://fedorahosted.org/released/koji/koji-%{version}.tar.bz2
+
+# https://pagure.io/koji/pull-request/9
+Patch1: 0001-_callMethod-fix-exception-handling.patch
+Patch2: 0002-Retry-anonymous-requests-once.patch
+# https://pagure.io/koji/pull-request/8
+Patch3: 0001-mergerepos-merge-armv6hl-packages-into-armhfp-as-wel.patch
+# https://pagure.io/koji/pull-request/13
+Patch4: 0001-koji-avoid-double-fault-when-handling-a-socket-excep.patch
+
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
 Requires: rpm-python
@@ -89,7 +98,7 @@ Requires: createrepo >= 0.4.11-2
 Requires: python-hashlib
 Requires: python-createrepo
 %endif
-%if 0%{?fedora} >= 9 or 0%{?rhel} >= 5
+%if 0%{?fedora} >= 9 || 0%{?rhel} >= 5
 Requires: createrepo >= 0.9.2
 %endif
 
@@ -154,6 +163,10 @@ koji-web is a web UI to the Koji system.
 %prep
 %setup -q
 %patch0 -p1 -b orig
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 %build
 

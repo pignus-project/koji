@@ -1,0 +1,25 @@
+From f8c838003403c99d80ff41a40fe2e7743e488629 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Tue, 8 Dec 2015 10:41:52 +0100
+Subject: [PATCH] mergerepos: merge armv6hl packages into armhfp as well
+
+---
+ builder/mergerepos | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/builder/mergerepos b/builder/mergerepos
+index c5349ef..2817179 100755
+--- a/builder/mergerepos
++++ b/builder/mergerepos
+@@ -43,7 +43,7 @@ EXPAND_ARCHES = {
+     'sparc': ['sparcv8', 'sparcv9', 'sparcv9v', 'sparcv9v2'],
+     'alpha': ['alphaev4', 'alphaev45', 'alphaev5', 'alphaev56',
+               'alphapca56', 'alphaev6', 'alphaev67', 'alphaev68', 'alphaev7'],
+-    'armhfp': ['armv7hl', 'armv7hnl'],
++    'armhfp': ['armv6hl', 'armv7hl', 'armv7hnl'],
+     'arm': ['armv5tel', 'armv5tejl', 'armv6l','armv7l'],
+     'sh4': ['sh4a']
+     }
+-- 
+2.5.0
+

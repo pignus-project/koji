@@ -1,0 +1,35 @@
+From ada1e3109b7ca6567e34fa4c57333a37836ce8bb Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Tue, 24 Nov 2015 12:58:41 +0100
+Subject: [PATCH 1/2] _callMethod(): fix exception handling
+
+Rethrow the exception that interests us, not the one from iteratable check above.
+---
+ koji/__init__.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/koji/__init__.py b/koji/__init__.py
+index a3d75d8..f5bdda6 100644
+--- a/koji/__init__.py
++++ b/koji/__init__.py
+@@ -1974,14 +1974,14 @@ class ClientSession(object):
+                                 if ('certificate revoked' in ssl_reason or
+                                         'certificate expired' in ssl_reason):
+                                     # There's no point in retrying for this
+-                                    raise
++                                    raise e
+                     if not self.logged_in:
+                         #in the past, non-logged-in sessions did not retry. For compatibility purposes
+                         #this behavior is governed by the anon_retry opt.
+                         if not self.opts.get('anon_retry',False):
+-                            raise
++                            raise e
+                     if tries > max_retries:
+-                        raise
++                        raise e
+                     #otherwise keep retrying
+                     if self.logger.isEnabledFor(logging.DEBUG):
+                         tb_str = ''.join(traceback.format_exception(*sys.exc_info()))
+-- 
+2.5.0
+
