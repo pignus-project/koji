@@ -1,0 +1,60 @@
+From b88c2dc545a72b3f64972a45e885111981ecec46 Mon Sep 17 00:00:00 2001
+From: Lubomir Rintel <lkundrak@v3.sk>
+Date: Thu, 2 Jun 2016 19:29:01 +0200
+Subject: [PATCH] SSLConnection: ignore errors from shutdown
+
+Traceback (most recent call last):
+  File "/usr/sbin/kojid", line 5365, in <module>
+    options.serverca)
+  File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 1920, in ssl_login
+    sinfo = self.callMethod('sslLogin', proxyuser)
+  File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 1970, in callMethod
+    return self._callMethod(name, args, opts)
+  File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 2090, in _callMethod
+    return self._sendCall(handler, headers, request)
+  File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 2001, in _sendCall
+    return self._sendOneCall(handler, headers, request)
+  File "/usr/lib/python2.7/site-packages/koji/__init__.py", line 2019, in _sendOneCall
+    cnx.endheaders()
+  File "/usr/lib/python2.7/httplib.py", line 1053, in endheaders
+    self._send_output(message_body)
+  File "/usr/lib/python2.7/httplib.py", line 897, in _send_output
+    self.send(msg)
+  File "/usr/lib/python2.7/httplib.py", line 859, in send
+    self.connect()
+  File "/usr/lib/python2.7/site-packages/koji/ssl/SSLCommon.py", line 113, in connect
+    self.sock.close()
+  File "/usr/lib/python2.7/site-packages/koji/ssl/SSLConnection.py", line 82, in close
+    self.shutdown()
+  File "/usr/lib/python2.7/site-packages/koji/ssl/SSLConnection.py", line 53, in shutdown
+    self.__dict__["conn"].shutdown()
+  File "/usr/lib/python2.7/site-packages/OpenSSL/SSL.py", line 1520, in shutdown
+    self._raise_ssl_error(self._ssl, result)
+  File "/usr/lib/python2.7/site-packages/OpenSSL/SSL.py", line 1191, in _raise_ssl_error
+    _raise_current_error()
+  File "/usr/lib/python2.7/site-packages/OpenSSL/_util.py", line 48, in exception_from_error_queue
+    raise exception_type(errors)
+OpenSSL.SSL.Error: [('SSL routines', 'SSL_shutdown', 'shutdown while in init')]
+---
+ koji/ssl/SSLConnection.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/koji/ssl/SSLConnection.py b/koji/ssl/SSLConnection.py
+index e80bf44..32cd5b2 100644
+--- a/koji/ssl/SSLConnection.py
++++ b/koji/ssl/SSLConnection.py
+@@ -50,7 +50,10 @@ class SSLConnection:
+         and Connection.shutdown() doesn't take
+         an argument. So we just discard the argument.
+         """
+-        self.__dict__["conn"].shutdown()
++        try:
++            self.__dict__["conn"].shutdown()
++        except:
++            pass
+ 
+     def accept(self):
+         """
+-- 
+2.7.4
+

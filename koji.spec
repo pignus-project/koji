@@ -9,7 +9,7 @@
 
 Name: koji
 Version: 1.11.0
-Release: 5%{?dist}
+Release: 5%{?dist}.lr1
 # koji.ssl libs (from plague) are GPLv2+
 License: LGPLv2 and GPLv2+
 Summary: Build system tools
@@ -26,6 +26,8 @@ Patch3: koji-pr243-CheckClientIP-and-TrustForwardedIP.patch
 Patch4: koji-pr239-principal-keytab-cli-config.patch
 # Not upstreamable
 Patch100: fedora-config.patch
+
+Patch666: 0001-SSLConnection-ignore-errors-from-shutdown.patch
 
 BuildArch: noarch
 Requires: python-krbV >= 1.0.13
@@ -181,6 +183,7 @@ koji-web is a web UI to the Koji system.
 #patch3 -p1 -b .243
 %patch4 -p1 -b .239
 %patch100 -p1 -b .fedoraconfig
+%patch666 -p1
 
 %build
 
